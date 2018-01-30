@@ -5,7 +5,7 @@ import sqlite3
 
 g = Graph()
 baseDir = '/home/agnieszka'               #base/considered directory
-fileName ='pro'                                   #part of a searched file name
+fileName ='pro'                           #part of a searched file name
 
 #class responsible for graph creation
 class dirTree():
@@ -16,20 +16,20 @@ class dirTree():
     #find content of a directory
     #specify graph's verteces and edges
     def findNodes(self, rootDir):
-        self.g.add_vertex(rootDir)                              #add a vertex to the graph
-        self.g.vs.find(rootDir)['att'] = 'dir'                  #attribute specifies if vertex is a file, dir or root dir
-        self.g.vs[0]['att'] = 'root'                                  #used also to give verteces different colors
+        self.g.add_vertex(rootDir)                         #add a vertex to the graph
+        self.g.vs.find(rootDir)['att'] = 'dir'             #attribute specifies if vertex is a file, dir or root dir
+        self.g.vs[0]['att'] = 'root'                       #used also to give verteces different colors
         for nodeName in os.listdir(rootDir):               #list of all items in a directory
             nodePath = rootDir+'/'+nodeName
-            if (not nodeName.startswith('.')):                #continue if found item isn't hidden 
-                if (os.path.isfile(nodePath) == 1):           #consider item if it is a file
+            if (not nodeName.startswith('.')):             #continue if found item isn't hidden 
+                if (os.path.isfile(nodePath) == 1):        #consider item if it is a file
                     self.g.add_vertex(nodePath)                   
-                    self.g.add_edge(rootDir, nodePath)        #connetion to the folder in which file was found
+                    self.g.add_edge(rootDir, nodePath)     #connetion to the folder in which file was found
                     self.g.vs.find(nodePath)['att']='file'
                     self.g.vs.find(nodePath)['lastChange'] =time.ctime(os.path.getmtime(nodePath))       #node attribute - last change time of a file
-                    self.g.vs.find(nodePath)['fileSize'] = os.stat(nodePath).st_size                                        #node attribute - file size
-                else:                                                               #in case a folder was found
-                    self.findNodes(nodePath)                          # call a function itself, to list its content
+                    self.g.vs.find(nodePath)['fileSize'] = os.stat(nodePath).st_size                     #node attribute - file size
+                else:                                       #in case a folder was found
+                    self.findNodes(nodePath)                # call a function itself, to list its content
                     self.g.add_edge(rootDir, nodePath)        
 
     #graph's settings and plot request 
@@ -60,13 +60,13 @@ class graphDatabase():
 
     #inserting records to the table
     def updateTable(self):
-        k=[]                                                            #list of lists including attributes of graph verteces
+        k=[]                                                 #list of lists including attributes of graph verteces
         k.append(self.g.vs['name'])                                          
         k.append(self.g.vs['fileSize'])
         k.append(self.g.vs['lastChange'])
         
-        result=zip(*k)                                          #manipulation of lists-list
-        result=list(result)                                     #in order to obtain list, which is acceptable for sql INSERT query
+        result=zip(*k)                                       #manipulation of lists-list
+        result=list(result)                                  #in order to obtain list, which is acceptable for sql INSERT query
         
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
@@ -78,7 +78,7 @@ class graphDatabase():
     #looking for a file where only a part of a name [fname] is known
     def findFile(self, fname):
         conn = sqlite3.connect(self.db)
-        c = conn.cursor()                                                           #in database only files have size different than null
+        c = conn.cursor()                                    #in database only files have size different than null
         c.execute("SELECT * FROM " + self.tb + " WHERE name LIKE ('%/"+fname+"%') AND size NOT NULL ")
         result = c.fetchall()
         for x in result:                                    #also files which have given string [fname] in their path will be shown
